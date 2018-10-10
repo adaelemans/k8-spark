@@ -1,0 +1,14 @@
+replicaCount: 1
+
+image:
+  repository: gcr.io/byond-infinity-platform/spark-history
+  tag: latest
+  pullPolicy: Always
+  port: 18080
+
+service:
+  type: ClusterIP
+  port: 18080
+
+strategy: RollingUpdate
+restartPolicy: Always

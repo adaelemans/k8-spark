@@ -34,18 +34,6 @@ hdfs:
         memory: "2048Mi"
         cpu: "1000m"
 
-yarn:
-  resourceManager:
-    pdbMinAvailable: 1
-
-    resources:
-      requests:
-        memory: "256Mi"
-        cpu: "10m"
-      limits:
-        memory: "2048Mi"
-        cpu: "2000m"
-
   nodeManager:
     pdbMinAvailable: 1
 

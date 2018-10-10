@@ -1,0 +1,42 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ template "spark-history.fullname" . }}
+  labels:
+    app: {{ template "spark-history.name" . }}
+    chart: {{ template "spark-history.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ template "spark-history.name" . }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "spark-history.name" . }}
+        release: {{ .Release.Name }}    
+    spec:
+      initContainers:
+      - name: init-hadoop
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        command: ['sh', '-c', 'until hdfs dfs -mkdir -p hdfs://reeling-sasquatch-hadoop-hdfs-nn:9000/spark-events; do echo waiting for hadoop; sleep 2; done;']
+      containers:
+        - name: {{ template "spark-history.fullname" . }}
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag }} 
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["/bin/sh","-c"]
+          args: ["./bin/spark-class org.apache.spark.deploy.history.HistoryServer;"]
+          ports:
+          - containerPort: {{ .Values.image.port }}
+          volumeMounts:
+            - name: spark-defaults-config
+              mountPath: /opt/spark-2.0.2/conf/spark-defaults.conf
+              subPath: spark-defaults.conf
+      volumes:
+        - name: spark-defaults-config
+          configMap:
+            name: spark-defaults-config
+
